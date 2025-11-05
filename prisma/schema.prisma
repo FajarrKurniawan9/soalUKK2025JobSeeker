@@ -1,0 +1,89 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model users {
+  id       Int       @id @default(autoincrement())
+  name     String
+  email    String
+  password String
+  role     Role
+  company  company[]
+  society  society[]
+}
+
+model company {
+  id                 Int                  @id @default(autoincrement())
+  name               String
+  address            String
+  phone              String
+  description        String
+  user_id            Int
+  users              users                @relation(fields: [user_id], references: [id])
+  available_position available_position[]
+  society            society[]
+}
+
+model available_position {
+  id                    Int      @id @default(autoincrement())
+  position_name         String
+  capatity              Int
+  description           String
+  submission_start_date DateTime
+  submission_end_date   DateTime
+  company_id            Int
+  company               company  @relation(fields: [company_id], references: [id])
+}
+
+model society {
+  id            Int          @id @default(autoincrement())
+  name          String
+  address       String
+  phone         Int
+  date_of_birth DateTime
+  gender        String
+  user_id       Int
+  users         users        @relation(fields: [user_id], references: [id])
+  company       company?     @relation(fields: [companyId], references: [id])
+  companyId     Int?
+  portofolio    portofolio[]
+}
+
+model portofolio {
+  id          Int     @id @default(autoincrement())
+  skill       String
+  description String
+  file        String
+  society_id  Int
+  society     society @relation(fields: [society_id], references: [id])
+}
+
+model position_applied {
+  id                    Int    @id @default(autoincrement())
+  available_position_id Int
+  society_id            Int
+  apply_date            String
+  status                Status
+}
+
+enum Role {
+  HRD
+  Society
+}
+
+enum Status {
+  Pending
+  Accepted
+  Rejected
+}
